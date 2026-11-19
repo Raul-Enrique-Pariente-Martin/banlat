@@ -188,13 +188,20 @@ private lemma not_cofinal_norm_lower_bound {u : ℕ → ℓ¹(ℕ, ℝ)}
   exact (not_le_of_gt (half_pos hε)) hzero
 
 /-- **Schur's theorem**: a weakly null sequence in real `ℓ¹` converges to zero in norm. -/
-theorem tendsto_zero_of_forall_dual_tendsto_zero {u : ℕ → ℓ¹(ℕ, ℝ)}
-    (hu : ∀ φ : StrongDual ℝ ℓ¹(ℕ, ℝ), Tendsto (fun n ↦ φ (u n)) atTop (𝓝 0)) :
+theorem tendsto_zero_of_weak_tendsto {u : ℕ → ℓ¹(ℕ, ℝ)}
+    (hu : Tendsto (fun n ↦ toWeakSpace ℝ ℓ¹(ℕ, ℝ) (u n))
+      atTop (𝓝 (toWeakSpace ℝ ℓ¹(ℕ, ℝ) 0))) :
     Tendsto u atTop (𝓝 0) := by
+  have hdual (φ : StrongDual ℝ ℓ¹(ℕ, ℝ)) :
+      Tendsto (fun n ↦ φ (u n)) atTop (𝓝 0) := by
+    have hφ := (WeakBilin.eval_continuous
+      (topDualPairing ℝ ℓ¹(ℕ, ℝ)).flip φ).tendsto _ |>.comp hu
+    change Tendsto (fun n ↦ φ (u n)) atTop (𝓝 (φ 0)) at hφ
+    simpa only [map_zero] using hφ
   rw [Metric.tendsto_atTop]
   intro ε hε
   by_contra! h
-  apply not_cofinal_norm_lower_bound hu hε
+  apply not_cofinal_norm_lower_bound hdual hε
   intro k
   obtain ⟨n, hn, hnorm⟩ := h k
   exact ⟨n, hn, by simpa only [dist_zero_right] using hnorm⟩
@@ -206,12 +213,9 @@ lemma tendsto_l1_of_weak_tendsto {u : ℕ → ℓ¹(ℕ, ℝ)} {a : ℓ¹(ℕ, �
       Filter.atTop (𝓝 (toWeakSpace ℝ ℓ¹(ℕ, ℝ) a))) :
     Filter.Tendsto u Filter.atTop (𝓝 a) := by
   have hzero : Filter.Tendsto (fun n ↦ u n - a) Filter.atTop (𝓝 0) := by
-    apply lp.tendsto_zero_of_forall_dual_tendsto_zero
-    intro φ
-    have hφ := (WeakBilin.eval_continuous
-      (topDualPairing ℝ ℓ¹(ℕ, ℝ)).flip φ).tendsto _ |>.comp hu
-    change Filter.Tendsto (fun n ↦ φ (u n)) Filter.atTop (𝓝 (φ a)) at hφ
-    simpa only [map_sub, sub_self] using hφ.sub_const (φ a)
+    apply lp.tendsto_zero_of_weak_tendsto
+    simpa only [map_sub, sub_self, map_zero] using
+      hu.sub_const (toWeakSpace ℝ ℓ¹(ℕ, ℝ) a)
   have h := hzero.add_const a
   simpa only [sub_add_cancel, zero_add] using h
 
