@@ -10,7 +10,7 @@ import BanLat.Tactic.LLexpr
 
 
 A subset `A` of a normed vector lattice `X` is almost order bounded if, for every
-`ε > 0`, there exists `u ≥ 0` such that `A ⊆ [-u, u] + ε B_X`, where `B_X` is
+`ε > 0`, there exists `u ≥ 0` such that `A ⊆ [-u, u]_o + ε B_X`, where `B_X` is
 the closed unit ball of `X`. Equivalently, `u` can be chosen so that
 `‖(|x| - u)⁺‖ ≤ ε` for every `x ∈ A`.
 -/
@@ -27,10 +27,10 @@ def AlmostOrderBounded (F : Set E) : Prop :=
   ∀ ε > 0, ∃ u : E, 0 ≤ u ∧ ∀ f ∈ F, ‖(|f| - u)⁺‖ ≤ ε
 
 /-- For any element `f` of a normed vector lattice and any `u ≥ 0`,
-there exists `g ∈ Set.Icc (-u) u` such that `‖f - g‖ = ‖(|f| - u)⁺‖`.
+there exists `g ∈ [-u, u]_o` such that `‖f - g‖ = ‖(|f| - u)⁺‖`.
 One such element is `(f ⊓ u) ⊔ (-u)`. -/
 private lemma exists_interval_approx (f u : E) (hu : 0 ≤ u) :
-    ∃ g ∈ Icc (-u) u, ‖f - g‖ = ‖(|f| - u)⁺‖ := by
+    ∃ g ∈ [-u, u]_o, ‖f - g‖ = ‖(|f| - u)⁺‖ := by
   refine ⟨(f ⊓ u) ⊔ (-u), ⟨le_sup_right, sup_le inf_le_right (by llarith)⟩, ?_⟩
   rw [← norm_abs_eq_norm]
   congr 1
@@ -38,10 +38,10 @@ private lemma exists_interval_approx (f u : E) (hu : 0 ≤ u) :
 
 /-- A set `F` in a normed vector lattice is almost order bounded if and only if,
 for every `ε > 0`, there exists `u ≥ 0` such that every `f ∈ F` can be written
-as `f = g + h` with `g ∈ Set.Icc (-u) u` and `‖h‖ ≤ ε`. -/
+as `f = g + h` with `g ∈ [-u, u]_o` and `‖h‖ ≤ ε`. -/
 theorem almostOrderBounded_iff_subset_add_closedBall {F : Set E} :
     AlmostOrderBounded F ↔ ∀ ε > 0, ∃ u : E, 0 ≤ u ∧
-      F ⊆ Icc (-u) u + Metric.closedBall 0 ε := by
+      F ⊆ [-u, u]_o + Metric.closedBall 0 ε := by
   constructor
   · intro h ε hε
     obtain ⟨u, hu, htail⟩ := h ε hε

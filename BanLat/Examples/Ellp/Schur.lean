@@ -2,6 +2,7 @@
 Authors: Raúl Enrique Pariente-Martín
 -/
 
+import BanLat.Examples.Ellp.Sum
 import Mathlib.Analysis.LocallyConvex.WeakSpace
 import Mathlib.Analysis.Normed.Lp.lpHolder
 import Mathlib.Analysis.Normed.Operator.Mul
@@ -28,7 +29,6 @@ private def boundedPairing (c : ℕ → ℝ) (hc : ∀ i, ‖c i‖ ≤ 1) :
     (K := 1) (fun _ ↦ ContinuousLinearMap.opNorm_mul_le ℝ ℝ)
     ⟨c, memℓp_infty_iff.mpr ⟨1, fun _ ⟨i, hi⟩ ↦ hi ▸ hc i⟩⟩
 
-
 /-- If `|c i| ≤ 1` for every `i`, then the functional on `ℓ¹(ℕ, ℝ)` given by
 `x ↦ ∑' i, c i * x i` has operator norm at most one. -/
 private lemma norm_boundedPairing_le (c : ℕ → ℝ) (hc : ∀ i, ‖c i‖ ≤ 1) :
@@ -42,7 +42,6 @@ private lemma norm_boundedPairing_le (c : ℕ → ℝ) (hc : ∀ i, ‖c i‖ �
       (lp.norm_le_of_forall_le zero_le_one hc) (norm_nonneg _) zero_le_one
     _ = 1 := one_mul 1
 
-
 /-- Applied to the sequence with value `a` at index `i` and zero elsewhere,
 `boundedPairing c hc` returns `c i * a`. -/
 private lemma boundedPairing_single (c : ℕ → ℝ) (hc : ∀ i, ‖c i‖ ≤ 1)
@@ -52,21 +51,6 @@ private lemma boundedPairing_single (c : ℕ → ℝ) (hc : ∀ i, ‖c i‖ ≤
   · simp [lp.single_apply]
   · intro j hj
     simp [lp.single_apply, Pi.single_eq_of_ne hj]
-
-
-/-- The projection onto the first `N` coordinates of `x`. It agrees with `x`
-at indices `i < N` and is zero at indices `i ≥ N`. -/
-private def headProjection (N : ℕ) (x : ℓ¹(ℕ, ℝ)) : ℓ¹(ℕ, ℝ) :=
-  ∑ i ∈ Finset.range N, lp.single 1 i (x i)
-
-
-/-- For every `x ∈ ℓ¹(ℕ, ℝ)`, the projection of `x` onto its first `N`
-coordinates converges to `x` in `ℓ¹` norm as `N → ∞`. -/
-private lemma tendsto_headProjection (x : ℓ¹(ℕ, ℝ)) :
-    Tendsto (fun N ↦ headProjection N x) atTop (𝓝 x) := by
-  simpa only [headProjection] using
-    (lp.hasSum_single (p := 1) (by simp) x).tendsto_sum_nat
-
 
 /-- Let `(u n)` be a weakly null sequence in `ℓ¹(ℕ, ℝ)` and fix `N`.
 Project each `u n` onto the first `N` coordinates. The resulting sequence
@@ -83,7 +67,6 @@ private lemma tendsto_headProjection_zero {u : ℕ → ℓ¹(ℕ, ℝ)}
         (hcoord i)
   simpa only [headProjection, Finset.sum_const_zero] using
     tendsto_finsetSum (Finset.range N) (fun i _ ↦ hsingle i)
-
 
 /-- Let `(u n)` be weakly null in `ℓ¹(ℕ, ℝ)`. Suppose there is a fixed
 `ε > 0` such that for every `k` some `n ≥ k` satisfies `‖u n‖ ≥ ε`.
@@ -110,18 +93,17 @@ private lemma exists_block_step {u : ℕ → ℓ¹(ℕ, ℝ)}
   · exact lt_of_lt_of_le (Nat.lt_succ_self N) (le_max_left _ _)
   · exact (le_max_right _ _).trans hn
 
-
 /-- Let `(u n)` be weakly null in `ℓ¹(ℕ, ℝ)`. Suppose there is a fixed
 `ε > 0` such that for every `j` some `n ≥ j` satisfies `‖u n‖ ≥ ε`.
-Then there are strictly increasing sequences `k` and `N` such that each
-`u (k n)` has norm at least `ε`, and its projections onto the coordinates
-`i < N n` and `i ≥ N (n + 1)` each have norm at most `ε / 8`. -/
+Then there are strictly increasing sequences `subseq` and `blockEnd` such that each
+`u (subseq n)` has norm at least `ε`, and its projections onto the coordinates
+`i < blockEnd n` and `i ≥ blockEnd (n + 1)` each have norm at most `ε / 8`. -/
 private lemma exists_blocks {u : ℕ → ℓ¹(ℕ, ℝ)}
     (hu : ∀ φ : StrongDual ℝ ℓ¹(ℕ, ℝ), Tendsto (fun n ↦ φ (u n)) atTop (𝓝 0))
     {ε : ℝ} (hε : 0 < ε) (hlarge : ∀ k, ∃ n, k ≤ n ∧ ε ≤ ‖u n‖) :
-    ∃ k N : ℕ → ℕ, StrictMono k ∧ StrictMono N ∧ ∀ n,
-      ε ≤ ‖u (k n)‖ ∧ ‖headProjection (N n) (u (k n))‖ ≤ ε / 8 ∧
-      ‖u (k n) - headProjection (N (n + 1)) (u (k n))‖ ≤ ε / 8 := by
+    ∃ subseq blockEnd : ℕ → ℕ, StrictMono subseq ∧ StrictMono blockEnd ∧ ∀ n,
+      ε ≤ ‖u (subseq n)‖ ∧ ‖headProjection (blockEnd n) (u (subseq n))‖ ≤ ε / 8 ∧
+      ‖u (subseq n) - headProjection (blockEnd (n + 1)) (u (subseq n))‖ ≤ ε / 8 := by
   choose nextIndex nextBound hnext using exists_block_step hu hε hlarge
   let q : ℕ → ℕ × ℕ := Nat.rec (0, 0)
     (fun _ s ↦ (nextIndex s.1 s.2, nextBound s.1 s.2))
@@ -134,7 +116,6 @@ private lemma exists_blocks {u : ℕ → ℓ¹(ℕ, ℝ)}
     exact (hnext (q n).1 (q n).2).2.1
   · intro n
     exact (hnext (q n).1 (q n).2).2.2
-
 
 /-- Let `(v n)` be a sequence in `ℓ¹(ℕ, ℝ)` and let `N` be strictly
 increasing. There is a continuous linear functional `φ` of norm at
@@ -172,39 +153,39 @@ private lemma exists_block_functional (v : ℕ → ℓ¹(ℕ, ℝ)) {N : ℕ →
   rw [hnorm]
   exact Finset.sum_congr rfl fun i hi ↦ hsign hi
 
-
 /-- It is impossible for a weakly null sequence `(u n)` in `ℓ¹(ℕ, ℝ)` to
 have infinitely many terms of norm at least a fixed `ε > 0`. -/
 private lemma not_cofinal_norm_lower_bound {u : ℕ → ℓ¹(ℕ, ℝ)}
     (hu : ∀ φ : StrongDual ℝ ℓ¹(ℕ, ℝ), Tendsto (fun n ↦ φ (u n)) atTop (𝓝 0))
     {ε : ℝ} (hε : 0 < ε) (hlarge : ∀ k, ∃ n, k ≤ n ∧ ε ≤ ‖u n‖) : False := by
-  obtain ⟨k, N, hk, hN, hblock⟩ := exists_blocks hu hε hlarge
-  obtain ⟨φ, hφ, hφblock⟩ := exists_block_functional (u ∘ k) hN
-  let b (n : ℕ) := headProjection (N (n + 1)) (u (k n)) - headProjection (N n) (u (k n))
-  have herr (n : ℕ) : ‖u (k n) - b n‖ ≤ ε / 4 := by
-    have heq : u (k n) - b n = (u (k n) - headProjection (N (n + 1)) (u (k n))) +
-        headProjection (N n) (u (k n)) := by dsimp [b]; abel_nf
+  obtain ⟨subseq, blockEnd, hsubseq, hblockEnd, hblock⟩ := exists_blocks hu hε hlarge
+  obtain ⟨φ, hφ, hφblock⟩ := exists_block_functional (u ∘ subseq) hblockEnd
+  let b (n : ℕ) := headProjection (blockEnd (n + 1)) (u (subseq n)) -
+    headProjection (blockEnd n) (u (subseq n))
+  have herr (n : ℕ) : ‖u (subseq n) - b n‖ ≤ ε / 4 := by
+    have heq : u (subseq n) - b n =
+        (u (subseq n) - headProjection (blockEnd (n + 1)) (u (subseq n))) +
+        headProjection (blockEnd n) (u (subseq n)) := by dsimp [b]; abel_nf
     rw [heq]
     calc
-      _ ≤ ‖u (k n) - headProjection (N (n + 1)) (u (k n))‖ +
-          ‖headProjection (N n) (u (k n))‖ := norm_add_le _ _
+      _ ≤ ‖u (subseq n) - headProjection (blockEnd (n + 1)) (u (subseq n))‖ +
+          ‖headProjection (blockEnd n) (u (subseq n))‖ := norm_add_le _ _
       _ ≤ ε / 8 + ε / 8 := add_le_add (hblock n).2.2 (hblock n).2.1
       _ = ε / 4 := by ring
-  have hlower (n : ℕ) : ε / 2 ≤ φ (u (k n)) := by
-    have hnorm : ‖u (k n)‖ ≤ ‖u (k n) - b n‖ + ‖b n‖ := by
-      simpa only [sub_add_cancel] using norm_add_le (u (k n) - b n) (b n)
-    have hdiff : |φ (u (k n)) - φ (b n)| ≤ ‖u (k n) - b n‖ := by
+  have hlower (n : ℕ) : ε / 2 ≤ φ (u (subseq n)) := by
+    have hnorm : ‖u (subseq n)‖ ≤ ‖u (subseq n) - b n‖ + ‖b n‖ := by
+      simpa only [sub_add_cancel] using norm_add_le (u (subseq n) - b n) (b n)
+    have hdiff : |φ (u (subseq n)) - φ (b n)| ≤ ‖u (subseq n) - b n‖ := by
       rw [← map_sub]
-      simpa only [one_mul, Real.norm_eq_abs] using φ.le_of_opNorm_le hφ (u (k n) - b n)
+      simpa only [one_mul, Real.norm_eq_abs] using φ.le_of_opNorm_le hφ (u (subseq n) - b n)
     have hvalue : φ (b n) = ‖b n‖ := hφblock n
     have hleft := (abs_le.mp hdiff).1
     linarith [herr n, (hblock n).1]
-  have hlim : Tendsto (fun n ↦ φ (u (k n))) atTop (𝓝 0) :=
-    (hu φ).comp hk.tendsto_atTop
+  have hlim : Tendsto (fun n ↦ φ (u (subseq n))) atTop (𝓝 0) :=
+    (hu φ).comp hsubseq.tendsto_atTop
   have hzero : ε / 2 ≤ 0 := le_of_tendsto_of_tendsto'
     (tendsto_const_nhds : Tendsto (fun _ : ℕ ↦ ε / 2) atTop (𝓝 (ε / 2))) hlim hlower
   exact (not_le_of_gt (half_pos hε)) hzero
-
 
 /-- **Schur's theorem**: a weakly null sequence in real `ℓ¹` converges to zero in norm. -/
 theorem tendsto_zero_of_forall_dual_tendsto_zero {u : ℕ → ℓ¹(ℕ, ℝ)}
@@ -217,5 +198,21 @@ theorem tendsto_zero_of_forall_dual_tendsto_zero {u : ℕ → ℓ¹(ℕ, ℝ)}
   intro k
   obtain ⟨n, hn, hnorm⟩ := h k
   exact ⟨n, hn, by simpa only [dist_zero_right] using hnorm⟩
+
+/-- If a sequence `(u n)` in `ℓ¹(ℕ, ℝ)` converges weakly to `a`, then
+it converges to `a` in norm. -/
+lemma tendsto_l1_of_weak_tendsto {u : ℕ → ℓ¹(ℕ, ℝ)} {a : ℓ¹(ℕ, ℝ)}
+    (hu : Filter.Tendsto (fun n ↦ toWeakSpace ℝ ℓ¹(ℕ, ℝ) (u n))
+      Filter.atTop (𝓝 (toWeakSpace ℝ ℓ¹(ℕ, ℝ) a))) :
+    Filter.Tendsto u Filter.atTop (𝓝 a) := by
+  have hzero : Filter.Tendsto (fun n ↦ u n - a) Filter.atTop (𝓝 0) := by
+    apply lp.tendsto_zero_of_forall_dual_tendsto_zero
+    intro φ
+    have hφ := (WeakBilin.eval_continuous
+      (topDualPairing ℝ ℓ¹(ℕ, ℝ)).flip φ).tendsto _ |>.comp hu
+    change Filter.Tendsto (fun n ↦ φ (u n)) Filter.atTop (𝓝 (φ a)) at hφ
+    simpa only [map_sub, sub_self] using hφ.sub_const (φ a)
+  have h := hzero.add_const a
+  simpa only [sub_add_cancel, zero_add] using h
 
 end lp

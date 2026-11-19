@@ -56,7 +56,6 @@ private lemma hilbert_isCompact_closedBall {H : Type*} [NormedAddCommGroup H]
   rwa [← (convex_closedBall (0 : H) r).toWeakSpace_closure ℝ,
     isClosed_closedBall.closure_eq] at hc
 
-
 /-- Suppose every element of `F` is within norm distance `ε` of some point of
 a weakly compact set `K`. Then every point in the weak-star closure of the
 canonical image of `F` is within bidual norm distance `ε` of some point of
@@ -156,7 +155,6 @@ private def l2ToL1 {α : Type*} [MeasurableSpace α] (μ : Measure α) [IsFinite
       (ENNReal.rpow_ne_top_of_nonneg (by norm_num) (measure_ne_top μ _))
   simpa only [ENNReal.toReal_mul, mul_comm] using ENNReal.toReal_mono hfinite h
 
-
 /-- Let `μ` be a finite measure, `f ∈ L¹(μ)`, and `C ≥ 0`. The function equal
 to `f` on `{x | |f x| < C}` and zero elsewhere defines `g ∈ L²(μ)` with
 `‖g‖ ≤ C √(μ univ)`. The `L¹(μ)` distance from `f` to the image of `g` is
@@ -244,7 +242,6 @@ private def l1MapOfSumBound {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ 
   intro s
   simpa [T] using hφ x s
 
-
 /-- Given `f ∈ L¹(μ)` and a measurable set `s`, the function equal to the sign
 of `f` on `s` and zero elsewhere defines an element `g ∈ L∞(μ)`. Almost
 everywhere, `|g| ≤ 1ₛ` and `g * f = 1ₛ * |f|`. -/
@@ -274,7 +271,6 @@ private lemma exists_signed_indicator {α : Type*} [MeasurableSpace α] {μ : Me
       · simp [abs_of_neg (lt_of_not_ge hf)]
     · simp [indicator_of_notMem hxs]
 
-
 /-- Let `s` be measurable and let `g ∈ L∞(μ)` satisfy `|g| ≤ 1ₛ` almost
 everywhere. For every `f ∈ L¹(μ)`, the absolute value of
 `∫ g * f ∂μ` is at most `∫ x in s, |f x| ∂μ`. -/
@@ -295,7 +291,6 @@ private lemma norm_signed_pairing_le {α : Type*} [MeasurableSpace α] {μ : Mea
     simpa using mul_le_mul_of_nonneg_right hx (norm_nonneg (f x))
   · simp only [indicator_of_notMem hxs] at hx ⊢
     simpa using mul_le_mul_of_nonneg_right hx (norm_nonneg (f x))
-
 
 /-- Let `s n` be pairwise disjoint measurable sets. Suppose each `g n ∈ L∞(μ)`
 has absolute value at most one almost everywhere on `s n` and vanishes almost
@@ -320,7 +315,6 @@ private lemma sum_norm_signed_pairing_le {α : Type*} [MeasurableSpace α] {μ :
       setIntegral_le_integral hf (Filter.Eventually.of_forall fun x ↦ norm_nonneg (f x))
     _ = ‖f‖ := (L1.norm_eq_integral_norm f).symm
 
-
 /-- Given a sequence `(f n)` in real `L¹(μ)` and pairwise disjoint measurable
 sets `s n`, there is a continuous linear map `T : L¹(μ) → ℓ¹(ℕ, ℝ)` such
 that the `n`-th coordinate of `T (f n)` is the integral of `|f n|` over
@@ -340,7 +334,6 @@ private lemma exists_signed_restriction_map {α : Type*} [MeasurableSpace α]
   rw [ContinuousLinearMap.lpPairing_eq_integral]
   exact (integral_congr_ae (heq n)).trans (integral_indicator (hs n))
 
-
 /-- Let `(s n)` be a sequence of sets. For each `n`, retain only the points of
 `s n` that belong to no `s m` with `m > n`. The resulting sets are pairwise
 disjoint. -/
@@ -353,7 +346,6 @@ private lemma pairwise_disjoint_remove_later {α : Type*} (s : ℕ → Set α) :
   rcases lt_or_gt_of_ne hij with hij | hji
   · exact hxi.2 (mem_iUnion.mpr ⟨j, mem_iUnion.mpr ⟨hij, hxj.1⟩⟩)
   · exact hxj.2 (mem_iUnion.mpr ⟨i, mem_iUnion.mpr ⟨hji, hxi.1⟩⟩)
-
 
 /-- If `F` is not equi-integrable, there exists `ε > 0` such that for every
 `δ > 0` there are `f ∈ F` and a measurable set `s` with `μ s ≤ δ` and
@@ -380,8 +372,6 @@ private lemma exists_small_set_witness {α : Type*} [MeasurableSpace α]
   have hle := ENNReal.ofReal_le_ofReal (le_of_not_gt h)
   exact (not_lt_of_ge hle) (by simpa using hrε.trans hfs)
 
-
-
 /-- Given `f ∈ L¹(μ)` and `ε > 0`, there exists `δ > 0` such that
 `∫ x in s, ‖f x‖ ∂μ ≤ ε` for every set `s` with `μ s ≤ δ`. -/
 private lemma exists_integral_small_set_bound {α : Type*} [MeasurableSpace α]
@@ -398,7 +388,6 @@ private lemma exists_integral_small_set_bound {α : Type*} [MeasurableSpace α]
   rw [eLpNorm_one_eq_lintegral_enorm (Lp.aestronglyMeasurable f).restrict,
     ← ofReal_integral_norm_eq_lintegral_enorm hint] at h
   exact (ENNReal.ofReal_le_ofReal_iff hε.le).mp h
-
 
 /-- Fix `ε > 0`. Suppose that for every `δ > 0` there exist `f ∈ F` and a
 measurable set `s` with `μ s ≤ δ` and `ε < ∫ x in s, ‖f x‖ ∂μ`.
@@ -424,7 +413,6 @@ private lemma exists_witness_step {α : Type*} [MeasurableSpace α]
     exact_mod_cast (show 2 * (min q δ / 2) ≤ δ by
       rw [mul_div_cancel₀ _ (by norm_num : (2 : ℝ≥0) ≠ 0)]
       exact min_le_right _ _)
-
 
 /-- Fix `ε > 0` and suppose that for every `δ > 0` there are `f ∈ F` and a
 measurable set `s` with `μ s ≤ δ` and `∫ x in s, ‖f x‖ ∂μ > ε`.
@@ -453,7 +441,6 @@ private lemma exists_witness_sequence {α : Type*} [MeasurableSpace α]
   · simpa only [hnext] using hrq (q n)
   · simpa only [hnext] using hsmall (q n)
 
-
 /-- Let `(q n)` be a sequence of nonnegative numbers with `q (n + 1) ≤ q n / 2`
 for every `n`. The sum of any `k` consecutive terms starting at index `n`
 is at most `2 * q n`. -/
@@ -471,7 +458,6 @@ private lemma sum_range_le_of_halving (q : ℕ → ℝ≥0)
       simp only [Nat.add_assoc] at hk
       nlinarith
   exact (le_add_of_nonneg_right (by positivity)).trans (h k)
-
 
 /-- Let `(s n)` be a sequence of sets and `(q n)` a sequence of nonnegative
 numbers such that `μ (s n) ≤ q n` and `q (n + 1) ≤ q n / 2` for every `n`.
@@ -522,24 +508,6 @@ private lemma exists_disjoint_witnesses {α : Type*} [MeasurableSpace α]
   dsimp only at heq ⊢
   linarith
 
-
-/-- If a sequence `(u n)` in `ℓ¹(ℕ, ℝ)` converges weakly to `a`, then
-it converges to `a` in norm. -/
-private lemma tendsto_l1_of_weak_tendsto {u : ℕ → ℓ¹(ℕ, ℝ)} {a : ℓ¹(ℕ, ℝ)}
-    (hu : Filter.Tendsto (fun n ↦ toWeakSpace ℝ ℓ¹(ℕ, ℝ) (u n))
-      Filter.atTop (𝓝 (toWeakSpace ℝ ℓ¹(ℕ, ℝ) a))) :
-    Filter.Tendsto u Filter.atTop (𝓝 a) := by
-  have hzero : Filter.Tendsto (fun n ↦ u n - a) Filter.atTop (𝓝 0) := by
-    apply lp.tendsto_zero_of_forall_dual_tendsto_zero
-    intro φ
-    have hφ := (WeakBilin.eval_continuous
-      (topDualPairing ℝ ℓ¹(ℕ, ℝ)).flip φ).tendsto _ |>.comp hu
-    change Filter.Tendsto (fun n ↦ φ (u n)) Filter.atTop (𝓝 (φ a)) at hφ
-    simpa only [map_sub, sub_self] using hφ.sub_const (φ a)
-  have h := hzero.add_const a
-  simpa only [sub_add_cancel, zero_add] using h
-
-
 /-- Let `(u n)` be a sequence in `ℓ¹(ℕ, ℝ)` that converges in norm to `a`, and
 let `k : ℕ → ℕ` be strictly increasing. Then the absolute value of the
 `k n`-th coordinate of `u n` tends to zero as `n → ∞`. -/
@@ -560,7 +528,6 @@ private lemma tendsto_diagonal_norm_zero {u : ℕ → ℓ¹(ℕ, ℝ)} {a : ℓ�
       add_le_add (lp.norm_apply_le_norm (by norm_num : (1 : ℝ≥0∞) ≠ 0)
         (u n - a) (k n)) le_rfl
 
-
 /-- A relatively weakly compact family in real `L¹` is equi-integrable. -/
 theorem MeasureTheory.Lp.unifIntegrable_of_isCompact_closure {α : Type*}
     [MeasurableSpace α] {μ : Measure α} {F : Set (Lp ℝ 1 μ)}
@@ -574,7 +541,7 @@ theorem MeasureTheory.Lp.unifIntegrable_of_isCompact_closure {α : Type*}
   have hweak := (WeakSpace.map T).continuous.tendsto a |>.comp hlim
   have hnorm : Filter.Tendsto (fun n ↦ T (f (k n))) Filter.atTop
       (𝓝 (T ((toWeakSpace ℝ (Lp ℝ 1 μ)).symm a))) :=
-    tendsto_l1_of_weak_tendsto hweak
+    lp.tendsto_l1_of_weak_tendsto hweak
   have hdiag := tendsto_diagonal_norm_zero hnorm hk
   have hlower (n) : ε ≤ ‖T (f (k n)) (k n)‖ := by
     rw [hT]
@@ -584,9 +551,9 @@ theorem MeasureTheory.Lp.unifIntegrable_of_isCompact_closure {α : Type*}
 
 /-- **Dunford–Pettis theorem.** Let `μ` be a finite measure and `F` a
 norm-bounded subset of real `L¹(μ)`. The following are equivalent:
-- `F` is relatively weakly compact.
-- `F` is equi-integrable.
-- `F` is almost order bounded. -/
+* `F` is relatively weakly compact.
+* `F` is equi-integrable.
+* `F` is almost order bounded. -/
 theorem MeasureTheory.Lp.dunford_pettis {α : Type*} [MeasurableSpace α]
     {μ : Measure α} [IsFiniteMeasure μ] {F : Set (Lp ℝ 1 μ)}
     (hbounded : Bornology.IsBounded F) :

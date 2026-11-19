@@ -11,6 +11,10 @@ import Mathlib.MeasureTheory.Function.UniformIntegrable
 
 Almost order bounded subsets of `L¹(μ)` are equi-integrable. If `μ` is finite,
 every norm-bounded equi-integrable subset of `L¹(μ)` is almost order bounded.
+
+In this file, equi-integrability means uniformly absolutely continuous integrals,
+expressed by Mathlib's `UnifIntegrable` predicate at exponent one. Mathlib's
+`UniformIntegrable` additionally requires a uniform bound on the `L¹` norms.
 -/
 
 open MeasureTheory Set
